@@ -1,0 +1,487 @@
+BGP_lab
+R11
+
+router isis 
+ net 49.0001.1111.1111.1111.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 400 499
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 1.1.1.1 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ ip address 10.0.0.1 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ ip address 10.0.0.5 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+router bgp 100
+ bgp router-id 1.1.1.1
+ no bgp default ipv4-unicast
+ neighbor 2.2.2.2 remote-as 100
+ neighbor 2.2.2.2 update-source Loopback0
+ neighbor 3.3.3.3 remote-as 100
+ neighbor 3.3.3.3 update-source Loopback0
+ neighbor 4.4.4.4 remote-as 100
+ neighbor 4.4.4.4 update-source Loopback0
+!
+address-family vpnv4
+ neighbor 2.2.2.2 activate
+ neighbor 2.2.2.2 send-community extended
+exit-address-family
+!
+ address-family vpnv4
+  neighbor 2.2.2.2 activate
+  neighbor 2.2.2.2 send-community extended
+  neighbor 2.2.2.2 route-reflector-client
+  neighbor 3.3.3.3 activate
+  neighbor 3.3.3.3 send-community extended
+  neighbor 3.3.3.3 route-reflector-client
+  neighbor 4.4.4.4 activate
+  neighbor 4.4.4.4 send-community extended
+  neighbor 4.4.4.4 route-reflector-client
+ exit-address-family
+ ######################################################
+ R12 配置
+ router isis 
+ net 49.0001.2222.2222.2222.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 400 499
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 2.2.2.2 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ ip address 10.0.0.6 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ ip address 10.0.0.9 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+router bgp 100
+ bgp router-id 2.2.2.2
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ no bgp default route-target filter
+ neighbor 1.1.1.1 remote-as 100
+ neighbor 1.1.1.1 update-source Loopback0
+ neighbor 10.0.2.2 remote-as 200
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor 1.1.1.1 activate
+  neighbor 1.1.1.1 send-community extended
+  neighbor 1.1.1.1 route-reflector-client
+  neighbor 1.1.1.1 next-hop-self
+  neighbor 10.0.2.2 activate
+  neighbor 10.0.2.2 send-community extended
+ exit-address-family
+############################################################
+R13配置
+ router isis 
+ net 49.0001.3333.3333.3333.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 400 499
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 3.3.3.3 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ ip address 10.0.0.2 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ ip address 10.0.0.13 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+router bgp 100
+ bgp router-id 3.3.3.3
+ no bgp default ipv4-unicast
+ neighbor 1.1.1.1 remote-as 100
+ neighbor 1.1.1.1 update-source Loopback0
+ !
+ address-family vpnv4
+  neighbor 1.1.1.1 activate
+  neighbor 1.1.1.1 send-community extended
+  neighbor 1.1.1.1 route-reflector-client
+！
+
+ip vrf mgt
+ rd 100:1
+ route-target export 100:1
+ route-target import 100:1
+ route-target import 200:1
+!
+
+interface Ethernet0/2
+ ip vrf forwarding mgt
+ ip address 172.16.1.113 255.255.255.0
+!
+router bgp 100
+address-family ipv4 vrf mgt
+  redistribute connected
+  redistribute static
+  redistribute ospf 100 match internal external 1 external 2
+ exit-address-family
+!
+ip route vrf mgt 0.0.0.0 0.0.0.0 172.16.1.251
+
+
+############################################################
+R14配置
+ router isis 
+ net 49.0001.4444.4444.4444.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 400 499
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 4.4.4.4 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ no shutdown
+ ip address 10.0.0.10 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ no shutdown
+ ip address 10.0.0.14 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+router bgp 100
+ bgp router-id 4.4.4.4
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ no bgp default route-target filter
+ neighbor 1.1.1.1 remote-as 100
+ neighbor 1.1.1.1 update-source Loopback0
+ neighbor 10.0.2.6 remote-as 200
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor 1.1.1.1 activate
+  neighbor 1.1.1.1 send-community extended
+  neighbor 1.1.1.1 route-reflector-client
+  neighbor 1.1.1.1 next-hop-self
+  neighbor 10.0.2.6 activate
+  neighbor 10.0.2.6 send-community extended
+ exit-address-family
+
+##########################################################
+###########################################################
+R24 [RR]
+
+router isis 
+ net 49.0002.8888.8888.8888.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 500 599
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 8.8.8.8 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ no shutdown
+ ip address 10.0.1.10 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ no shutdown
+ ip address 10.0.1.14 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+router bgp 200
+ bgp router-id 8.8.8.8
+ no bgp default ipv4-unicast
+ neighbor 5.5.5.5 remote-as 200
+ neighbor 5.5.5.5 update-source Loopback0
+ neighbor 6.6.6.6 remote-as 200
+ neighbor 6.6.6.6 update-source Loopback0
+ neighbor 7.7.7.7 remote-as 200
+ neighbor 7.7.7.7 update-source Loopback0
+!
+!
+ address-family vpnv4
+  neighbor 5.5.5.5 activate
+  neighbor 5.5.5.5 send-community extended
+  neighbor 5.5.5.5 route-reflector-client
+  neighbor 6.6.6.6 activate
+  neighbor 6.6.6.6 send-community extended
+  neighbor 6.6.6.6 route-reflector-client
+  neighbor 7.7.7.7 activate
+  neighbor 7.7.7.7 send-community extended
+  neighbor 7.7.7.7 route-reflector-client
+ exit-address-family
+ ###########################################################
+R21 
+
+router isis 
+ net 49.0002.5555.5555.5555.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 500 599
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 5.5.5.5 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ no shutdown
+ ip address 10.0.1.1 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ no shutdown
+ ip address 10.0.1.5 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/3
+ no shutdown
+ ip address 10.0.1.17 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+interface Ethernet0/2 
+ no shutdown
+ ip address 10.0.1.18 255.255.255.252
+ ip router isis
+ mpls ip
+!
+router bgp 200
+ bgp router-id 5.5.5.5
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ no bgp default route-target filter
+ neighbor 8.8.8.8 remote-as 200
+ neighbor 8.8.8.8 update-source Loopback0
+ neighbor 10.0.2.1 remote-as 100
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family vpnv4
+  neighbor 8.8.8.8 activate
+  neighbor 8.8.8.8 send-community extended
+  neighbor 8.8.8.8 route-reflector-client
+  neighbor 8.8.8.8 next-hop-self
+  neighbor 10.0.2.1 activate
+  neighbor 10.0.2.1 send-community extended
+  neighbor 10.0.2.1 route-map LP1 in
+ exit-address-family
+!
+ip prefix-list 1 seq 5 permit 172.16.1.0/24
+!
+ip prefix-list 2 seq 5 permit 172.16.0.0/24
+!
+route-map LP1 permit 10
+ match ip address prefix-list 1
+ set local-preference 200
+!
+route-map LP1 permit 20
+!
+route-map LP2 permit 10
+ match ip address prefix-list 2
+ set local-preference 200
+!
+route-map LP2 permit 20
+!
+!         
+###########################################################
+R22 
+
+router isis 
+ net 49.0002.6666.6666.6666.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 500 599
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 6.6.6.6 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ no shutdown
+ ip address 10.0.1.2 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ no shutdown
+ ip address 10.0.1.13 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+interface Ethernet0/3
+ no shutdown
+ ip address 10.0.1.21 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+interface Ethernet0/2 
+ no shutdown
+ ip address 10.0.1.22 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+router bgp 200
+ bgp router-id 6.6.6.6
+ no bgp default ipv4-unicast
+ neighbor 8.8.8.8 remote-as 200
+ neighbor 8.8.8.8 update-source Loopback0
+！
+ address-family vpnv4
+  neighbor 8.8.8.8 activate
+  neighbor 8.8.8.8 send-community extended
+  neighbor 8.8.8.8 route-reflector-client
+！
+ ###########################################################
+R23
+
+router isis 
+ net 49.0002.7777.7777.7777.00
+ log-adjacency-changes
+!
+ip cef
+mpls label range 500 599
+mpls ldp router-id Loopback0
+!
+!
+interface Loopback0
+ ip address 7.7.7.7 255.255.255.255
+ ip router isis
+!         
+interface Ethernet0/0
+ no shutdown
+ ip address 10.0.1.6 255.255.255.252
+ ip router isis
+ mpls ip
+!
+interface Ethernet0/1
+ no shutdown
+ ip address 10.0.1.9 255.255.255.252
+ ip router isis
+ mpls ip
+!
+
+router bgp 200
+ bgp router-id 7.7.7.7
+ no bgp default ipv4-unicast
+ neighbor 8.8.8.8 remote-as 200
+ neighbor 8.8.8.8 update-source Loopback0
+！
+ address-family vpnv4
+  neighbor 8.8.8.8 activate
+  neighbor 8.8.8.8 send-community extended
+  neighbor 8.8.8.8 route-reflector-client
+！
+
+ip vrf mgt_as200
+ rd 200:1
+ route-target export 200:1
+ route-target import 200:1
+ route-target import 100:1
+!
+
+#######################################################
+测试结果
+R23#    show bgp vpnv4 unicast all
+BGP table version is 16, local router ID is 7.7.7.7
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal, 
+              r RIB-failure, S Stale, m multipath, b backup-path, f RT-Filter, 
+              x best-external, a additional-path, c RIB-compressed, 
+Origin codes: i - IGP, e - EGP, ? - incomplete
+RPKI validation codes: V valid, I invalid, N Not found
+
+     Network          Next Hop            Metric LocPrf Weight Path
+Route Distinguisher: 100:1
+ *>i 0.0.0.0          5.5.5.5                  0    100      0 100 ?
+ *>i 172.16.0.0/24    6.6.6.6                  0    200      0 100 ?
+ *>i 172.16.1.0/24    5.5.5.5                  0    200      0 100 ?
+Route Distinguisher: 200:1 (default for vrf mgt_as200)
+ *>i 0.0.0.0          5.5.5.5                  0    100      0 100 ?
+ *>i 172.16.0.0/24    6.6.6.6                  0    200      0 100 ?
+ *>i 172.16.1.0/24    5.5.5.5                  0    200      0 100 ?
+ *>  172.16.2.0/24    0.0.0.0                  0         32768 ?
+R23#    traceroute vrf mgt_as200 172.16.1.113
+Type escape sequence to abort.
+Tracing the route to 172.16.1.113
+VRF info: (vrf in name/id, vrf out name/id)
+  1 10.0.1.5 [MPLS: Label 509 Exp 0] 9 msec 7 msec 6 msec
+  2 10.0.2.1 [MPLS: Label 406 Exp 0] 8 msec 10 msec 9 msec
+  3 10.0.0.5 [MPLS: Labels 401/405 Exp 0] 12 msec 5 msec 2 msec
+  4 172.16.1.113 3 msec 2 msec * 
+R23#    traceroute vrf mgt_as200 172.16.0.113
+Type escape sequence to abort.
+Tracing the route to 172.16.0.113
+VRF info: (vrf in name/id, vrf out name/id)
+  1 10.0.1.21 [MPLS: Label 500 Exp 0] 2 msec 2 msec 1 msec
+  2 10.0.2.5 [MPLS: Label 407 Exp 0] 2 msec 2 msec 1 msec
+  3 172.16.0.113 2 msec 2 msec * 
+R23#
+
+如果要将默认路由重分发进BGP
+需要使用 default-information originate
+单独使用redistribute static是分发不进去的
+address-family ipv4 vrf mgt
+  redistribute connected
+  redistribute static
+  redistribute ospf 100 match internal external 1 external 2
+  default-information originate
+ exit-address-family
