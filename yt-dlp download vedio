@@ -1,0 +1,12 @@
+先查看有哪些可用视频格式
+(.venv) PS E:\mypythonproject> yt-dlp --cookies "E:\mypythonproject\www.youtube.com_cookies.txt"  --list-formats --merge-output-format mp4 --write-auto-subs --sub-langs "en.*" -o "E:\Videos\%(title)s.%(ext)s" "https://www.youtube.com/watch?v=13j2BIDm8Zw"
+
+ 
+
+再选格式下载
+ yt-dlp --cookies "E:\mypythonproject\www.youtube.com_cookies.txt" -f "95+sb0/bestvideo+bestaudio" --merge-output-format mp4 --write-auto-subs --sub-langs "en.*" -o "E:\Videos\%(title)s.%(ext)s" "https://www.youtube.com/watch?v=13j2BIDm8Zw" 
+
+
+
+yt-dlp --cookies "E:\mypythonproject\www.youtube.com_cookies.txt"  --list-formats --merge-output-format mp4 --write-auto-subs --sub-langs "en.*" -o "E:\Videos\%(title)s.%(ext)s" "https://www.youtube.com/watch?v=5-5FMAUoR1Q&t=24s"
+yt-dlp --cookies "E:\mypythonproject\www.youtube.com_cookies.txt" -f "95+sb0/bestvideo+bestaudio" --merge-output-format mp4 --write-auto-subs --sub-langs "en.*" -o "E:\Videos\%(title)s.%(ext)s" "https://www.youtube.com/watch?v=5-5FMAUoR1Q&t=24s"
